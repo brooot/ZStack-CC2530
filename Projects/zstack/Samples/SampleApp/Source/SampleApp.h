@@ -75,7 +75,7 @@ extern "C"
 #define SAMPLEAPP_SEND_PERIODIC_MSG_EVT       0x0001
 
 // Group ID for Flash Command
-#define SAMPLEAPP_FLASH_GROUP                  0x0001
+#define SAMPLEAPP_FLASH_GROUP                  0x0002
 
 // Flash Command Duration - in milliseconds
 #define SAMPLEAPP_FLASH_DURATION               1000
