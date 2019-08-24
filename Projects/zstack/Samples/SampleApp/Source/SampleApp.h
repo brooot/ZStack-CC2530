@@ -63,10 +63,11 @@ extern "C"
 #define SAMPLEAPP_DEVICE_VERSION     0
 #define SAMPLEAPP_FLAGS              0
 
-#define SAMPLEAPP_MAX_CLUSTERS       3 //簇id的个数,每增加一个都要加一
+#define SAMPLEAPP_MAX_CLUSTERS       4 //簇id的个数,每增加一个都要加一
 #define SAMPLEAPP_PERIODIC_CLUSTERID 1
 #define SAMPLEAPP_FLASH_CLUSTERID    2
 #define SAMPLEAPP_COM_CLUSTERID      3 // 自己定义用来判断收发双方身份的ID (透传)
+#define SAMPLEAPP_POINT_TO_POINT_CLUSTERID 4 // 点对点通信簇ID
 // Send Message Timeout
 #define SAMPLEAPP_SEND_PERIODIC_MSG_TIMEOUT   5000     // Every 5 seconds
 

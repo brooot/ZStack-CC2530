@@ -141,6 +141,8 @@ uint8 SampleApp_TransID;  // This is the unique message ID (counter)
 afAddrType_t SampleApp_Periodic_DstAddr;
 afAddrType_t SampleApp_Flash_DstAddr;
 
+afAddrType_t Point_To_Point_DstAddr; //WeBee点对点通信定义
+
 aps_Group_t SampleApp_Group;
 
 uint8 SampleAppPeriodicCounter = 0;
@@ -153,8 +155,8 @@ void SampleApp_HandleKeys( uint8 shift, uint8 keys );
 void SampleApp_MessageMSGCB( afIncomingMSGPacket_t *pckt );
 void SampleApp_SendPeriodicMessage( void );
 void SampleApp_SendFlashMessage( uint16 flashTime );
-void SampleApp_SerialCMD(mtOSALSerialData_t *cmdMsg);
-
+void SampleApp_SerialCMD(mtOSALSerialData_t *cmdMsg); // 串口通信
+void SampleApp_SendPointToPointMessage( void ); //点对点
 /*********************************************************************
  * NETWORK LAYER CALLBACKS
  */
@@ -214,6 +216,30 @@ void SampleApp_Init( uint8 task_id )
   ZDOInitDevice(0);
 #endif
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  //WeBee点对点通讯定义
+  Point_To_Point_DstAddr.addrMode = (afAddrMode_t)Addr16Bit; //点播模式
+  Point_To_Point_DstAddr.endPoint = SAMPLEAPP_ENDPOINT;
+  Point_To_Point_DstAddr.addr.shortAddr = 0x0000; //发给协调器
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   // Setup for the periodic message's destination address
   // Broadcast to everyone
   SampleApp_Periodic_DstAddr.addrMode = (afAddrMode_t)AddrBroadcast;
@@ -292,7 +318,7 @@ uint16 SampleApp_ProcessEvent( uint8 task_id, uint16 events )
         // Received whenever the device changes state in the network
         case ZDO_STATE_CHANGE:  //网络状态改变，如未连接上网络
           SampleApp_NwkState = (devStates_t)(MSGpkt->hdr.status);
-          if ( (SampleApp_NwkState == DEV_ZB_COORD) //协调器
+          if ( 0//(SampleApp_NwkState == DEV_ZB_COORD) //协调器
               || (SampleApp_NwkState == DEV_ROUTER) //路由器
               || (SampleApp_NwkState == DEV_END_DEVICE) ) //终端 都执行
           {
@@ -328,8 +354,14 @@ uint16 SampleApp_ProcessEvent( uint8 task_id, uint16 events )
   if ( events & SAMPLEAPP_SEND_PERIODIC_MSG_EVT )
   {
     // Send the periodic message
-    SampleApp_SendPeriodicMessage(); //用户发送处理函数
-
+    //SampleApp_SendPeriodicMessage(); //用户发送处理函数
+    
+    
+    /*Point_to_Point*/
+    SampleApp_SendPointToPointMessage(); //点对点发送函数
+      
+    
+    
     // Setup to send message again in normal period (+ a little jitter)
     osal_start_timerEx( SampleApp_TaskID, SAMPLEAPP_SEND_PERIODIC_MSG_EVT,
         (SAMPLEAPP_SEND_PERIODIC_MSG_TIMEOUT + (osal_rand() & 0x00FF)) );
@@ -343,6 +375,30 @@ uint16 SampleApp_ProcessEvent( uint8 task_id, uint16 events )
 }
 
 
+/*自定义点对点发送函数*/
+void SampleApp_SendPointToPointMessage( void )
+{
+  uint8 data[11]={'f','r','o','m',' ','e','n','d',' ',' ',' '};
+  if ( AF_DataRequest( &Point_To_Point_DstAddr, //点对点通信方式目标地址
+                      &SampleApp_epDesc,
+                      SAMPLEAPP_POINT_TO_POINT_CLUSTERID, //点对点簇ID
+                      12,
+                      data,
+                      &SampleApp_TransID,
+                      AF_DISCV_ROUTE,
+                      AF_DEFAULT_RADIUS ) == afStatus_SUCCESS )
+  {
+  }
+  else
+  {
+    // Error occurred in request to send.
+  }
+}
+
+
+
+
+
 /*自行定义的 处理串口发来数据包 的函数*/
 void SampleApp_SerialCMD(mtOSALSerialData_t *cmdMsg)
 {
@@ -352,24 +408,25 @@ void SampleApp_SerialCMD(mtOSALSerialData_t *cmdMsg)
     /********打印出串口接收到的数据，用于提示*********/
     HalUARTWrite(0,"我说: ",strlen("我说: "));
     
-    int8 A[] = {'1','0','0','0','0','0','0','1'};
-    unsigned char One = '1',Zero = '0';
-    for (i=0;i<8;++i)
-    {
-      if(A[i]-*(str+i+1))
-      {
-        HalUARTWrite(0,&One,1);
-        *(str+1+i) = One;
-      }
-      else
-      {
-        HalUARTWrite(0,&Zero,1);
-        *(str+1+i) = Zero;
-      }
-        
-        
-    }
     
+    //模拟异或操作
+//    int8 A[] = {'1','0','0','0','0','0','0','1'};
+//    unsigned char One = '1',Zero = '0';
+//    for (i=0;i<8;++i)
+//    {
+//      if(A[i]-*(str+i+1))
+//      {
+//        HalUARTWrite(0,&One,1);
+//        *(str+1+i) = One;
+//      }
+//      else
+//      {
+//        HalUARTWrite(0,&Zero,1);
+//        *(str+1+i) = Zero;
+//      }
+//
+//    }
+//    
     
     
 //    for(i=1;i<=len;i++)
@@ -378,12 +435,12 @@ void SampleApp_SerialCMD(mtOSALSerialData_t *cmdMsg)
 //      HalUARTWrite(0,str+i,1);
 //    }
         
-    HalUARTWrite(0,"\n",1 );//换行
+    //HalUARTWrite(0,"\n",1 );//换行
 //    
 //    /*下面瞎写的*/
 //    if( *(str) == 4)
 //    {
-//      uint8 data[11]={10,'0','1','2','3','4','5','6','7','8','9'};
+//      uint8 data[10]={'0','1','2','3','4','5','6','7','8','9'};
 //      
 //      //HalUARTWrite(0,"get an 'a' !",strlen("get an 'a' !") );
 //      if ( AF_DataRequest( &SampleApp_Periodic_DstAddr, &SampleApp_epDesc,
@@ -424,82 +481,6 @@ void SampleApp_SerialCMD(mtOSALSerialData_t *cmdMsg)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-/*********************************************************************
- * Event Generation Functions
- */
-/*********************************************************************
- * @fn      SampleApp_HandleKeys
- *
- * @brief   Handles all key events for this device.
- *
- * @param   shift - true if in shift/alt.
- * @param   keys - bit field for key events. Valid entries:
- *                 HAL_KEY_SW_2
- *                 HAL_KEY_SW_1
- *
- * @return  none
- */
-void SampleApp_HandleKeys( uint8 shift, uint8 keys )
-{
-  (void)shift;  // Intentionally unreferenced parameter
-
-  if ( keys & HAL_KEY_SW_1 )
-  {
-    /* This key sends the Flash Command is sent to Group 1.
-     * This device will not receive the Flash Command from this
-     * device (even if it belongs to group 1).
-     */
-    SampleApp_SendFlashMessage( SAMPLEAPP_FLASH_DURATION );
-  }
-
-  if ( keys & HAL_KEY_SW_2 )
-  {
-    /* The Flashr Command is sent to Group 1.
-     * This key toggles this device in and out of group 1.
-     * If this device doesn't belong to group 1, this application
-     * will not receive the Flash command sent to group 1.
-     */
-    aps_Group_t *grp;
-    grp = aps_FindGroup( SAMPLEAPP_ENDPOINT, SAMPLEAPP_FLASH_GROUP );
-    if ( grp )
-    {
-      // Remove from the group
-      aps_RemoveGroup( SAMPLEAPP_ENDPOINT, SAMPLEAPP_FLASH_GROUP );
-    }
-    else
-    {
-      // Add to the flash group
-      aps_AddGroup( SAMPLEAPP_ENDPOINT, &SampleApp_Group );
-    }
-  }
-  //判断按键S2按下，发送数据到串口
-  if ( keys & HAL_KEY_SW_6 )
-  {
-    HalUARTWrite(0,"S1\n",3);
-    HalLedBlink( HAL_LED_3, 2,50, 500 ); //LED1 闪烁提示
-  }
-}
-
-
-
-
-
-
-
-
-
-
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -510,9 +491,7 @@ void SampleApp_HandleKeys( uint8 shift, uint8 keys )
  * @brief   Data message processor callback.  This function processes
  *          any incoming data - probably from other devices.  So, based
  *          on cluster ID, perform the intended action.
- *          
-            处理接收到的数据,可能是从其他设备收到的数据.
-
+ *          ***处理接收到的数据,可能是从其他设备收到的数据.***
  * @param   none
  *
  * @return  none
@@ -523,10 +502,17 @@ void SampleApp_MessageMSGCB( afIncomingMSGPacket_t *pkt )
   uint8 i,len; //透传
   switch ( pkt->clusterId )
   {
+    
+  case SAMPLEAPP_POINT_TO_POINT_CLUSTERID:
+    HalUARTWrite(0, "I got DATA ", 11);  //给串口发送提示
+    HalUARTWrite(0, &pkt->cmd.Data[0], 10); // 打印收到数据
+    HalUARTWrite(0, "\n", 1); // 回车换行
+    break;
+    
   case SAMPLEAPP_PERIODIC_CLUSTERID:
-//            HalUARTWrite(0, "I get data ", 11);  //给串口发送提示
-//            HalUARTWrite(0, &pkt->cmd.Data[0], 10); // 打印收到数据
-//            HalUARTWrite(0, "\n", 1); // 回车换行
+    //            HalUARTWrite(0, "I get data ", 11);  //给串口发送提示
+    //            HalUARTWrite(0, &pkt->cmd.Data[0], 10); // 打印收到数据
+    //            HalUARTWrite(0, "\n", 1); // 回车换行
     break;
     
   case SAMPLEAPP_FLASH_CLUSTERID:
@@ -603,6 +589,70 @@ void SampleApp_SendFlashMessage( uint16 flashTime )
     // Error occurred in request to send.
   }
 }
+
+
+
+
+/*********************************************************************
+ * Event Generation Functions
+ */
+/*********************************************************************
+ * @fn      SampleApp_HandleKeys
+ *
+ * @brief   Handles all key events for this device.
+ *
+ * @param   shift - true if in shift/alt.
+ * @param   keys - bit field for key events. Valid entries:
+ *                 HAL_KEY_SW_2
+ *                 HAL_KEY_SW_1
+ *
+ * @return  none
+ */
+void SampleApp_HandleKeys( uint8 shift, uint8 keys )
+{
+  (void)shift;  // Intentionally unreferenced parameter
+
+  if ( keys & HAL_KEY_SW_1 )
+  {
+    /* This key sends the Flash Command is sent to Group 1.
+     * This device will not receive the Flash Command from this
+     * device (even if it belongs to group 1).
+     */
+    SampleApp_SendFlashMessage( SAMPLEAPP_FLASH_DURATION );
+  }
+
+  if ( keys & HAL_KEY_SW_2 )
+  {
+    /* The Flashr Command is sent to Group 1.
+     * This key toggles this device in and out of group 1.
+     * If this device doesn't belong to group 1, this application
+     * will not receive the Flash command sent to group 1.
+     */
+    aps_Group_t *grp;
+    grp = aps_FindGroup( SAMPLEAPP_ENDPOINT, SAMPLEAPP_FLASH_GROUP );
+    if ( grp )
+    {
+      // Remove from the group
+      aps_RemoveGroup( SAMPLEAPP_ENDPOINT, SAMPLEAPP_FLASH_GROUP );
+    }
+    else
+    {
+      // Add to the flash group
+      aps_AddGroup( SAMPLEAPP_ENDPOINT, &SampleApp_Group );
+    }
+  }
+  //判断按键S2按下，发送数据到串口
+  if ( keys & HAL_KEY_SW_6 )
+  {
+    HalUARTWrite(0,"S1\n",3);
+    HalLedBlink( HAL_LED_3, 2,50, 500 ); //LED1 闪烁提示
+  }
+}
+
+
+
+
+
 
 /*********************************************************************
 *********************************************************************/

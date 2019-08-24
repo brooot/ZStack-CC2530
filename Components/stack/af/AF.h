@@ -236,6 +236,8 @@ typedef enum
   afAddrBroadcast  = AddrBroadcast //广播
 } afAddrMode_t;
 
+
+//网络地址类型
 typedef struct
 {
   union
