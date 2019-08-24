@@ -407,7 +407,12 @@ void SampleApp_SerialCMD(mtOSALSerialData_t *cmdMsg)
     len=*str; //msg 里的第 1 个字节代表后面的数据长度
     /********打印出串口接收到的数据，用于提示*********/
     HalUARTWrite(0,"我说: ",strlen("我说: "));
-    
+    for(i=1;i<=len;i++)
+    {
+      HalUARTWrite(0,str+i,1);
+    }
+        
+    HalUARTWrite(0,"\n",1 );//换行
     
     //模拟异或操作
 //    int8 A[] = {'1','0','0','0','0','0','0','1'};
@@ -429,13 +434,7 @@ void SampleApp_SerialCMD(mtOSALSerialData_t *cmdMsg)
 //    
     
     
-//    for(i=1;i<=len;i++)
-//    {
-//      *(str+i) = *(str+i)-1;
-//      HalUARTWrite(0,str+i,1);
-//    }
-        
-    //HalUARTWrite(0,"\n",1 );//换行
+    
 //    
 //    /*下面瞎写的*/
 //    if( *(str) == 4)
@@ -505,7 +504,7 @@ void SampleApp_MessageMSGCB( afIncomingMSGPacket_t *pkt )
     
   case SAMPLEAPP_POINT_TO_POINT_CLUSTERID:
     HalUARTWrite(0, "I got DATA ", 11);  //给串口发送提示
-    HalUARTWrite(0, &pkt->cmd.Data[0], 10); // 打印收到数据
+    HalUARTWrite(0, &pkt->cmd.Data[0], 11); // 打印收到数据
     HalUARTWrite(0, "\n", 1); // 回车换行
     break;
     
