@@ -139,11 +139,11 @@ devStates_t SampleApp_NwkState;
 uint8 SampleApp_TransID;  // This is the unique message ID (counter)
 
 afAddrType_t SampleApp_Periodic_DstAddr;
-afAddrType_t SampleApp_Flash_DstAddr; //组播
+afAddrType_t SampleApp_Flash_DstAddr;
 
 afAddrType_t Point_To_Point_DstAddr; //WeBee点对点通信定义
 
-aps_Group_t SampleApp_Group; //分组内容
+aps_Group_t SampleApp_Group;
 
 uint8 SampleAppPeriodicCounter = 0;
 uint8 SampleAppFlashCounter = 0;
