@@ -217,40 +217,42 @@ void SampleApp_Init( uint8 task_id )
   ZDOInitDevice(0);
 #endif
 
-  
-  
+
+
   //WeBee点对点通讯定义
   Point_To_Point_DstAddr.addrMode = (afAddrMode_t)Addr16Bit; //点播模式
   Point_To_Point_DstAddr.endPoint = SAMPLEAPP_ENDPOINT;
   Point_To_Point_DstAddr.addr.shortAddr = 0x0000; //发给协调器
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
   // Setup for the periodic message's destination address
-  // Broadcast to everyone
+  // Broadcast to everyone     广播方式定义
   SampleApp_Periodic_DstAddr.addrMode = (afAddrMode_t)AddrBroadcast;
   SampleApp_Periodic_DstAddr.endPoint = SAMPLEAPP_ENDPOINT;
-  SampleApp_Periodic_DstAddr.addr.shortAddr = 0xFFFF;
+  SampleApp_Periodic_DstAddr.addr.shortAddr = 0xFFFF;//发送给所有设备,睡眠中的节点由父节点暂存直到超时
+  //0xFFFD 发送给非睡眠状态的所有设备
+  //0xFFFC 发送给所有路由器以及协调器
 
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
   //组播Group1设置
   // Setup for the flash command's destination address - Group 1
   SampleApp_Flash_DstAddr.addrMode = (afAddrMode_t)afAddrGroup;
   SampleApp_Flash_DstAddr.endPoint = SAMPLEAPP_ENDPOINT;  //endpoint 端点
   SampleApp_Flash_DstAddr.addr.shortAddr = SAMPLEAPP_FLASH_GROUP;
 
-  
-  
-  
-  
+
+
+
+
   // Fill out the endpoint description.
   SampleApp_epDesc.endPoint = SAMPLEAPP_ENDPOINT;
   SampleApp_epDesc.task_id = &SampleApp_TaskID;
@@ -264,16 +266,16 @@ void SampleApp_Init( uint8 task_id )
   // Register for all key events - This app will handle all key events
   RegisterForKeys( SampleApp_TaskID );
 
-  
-  
+
+
   /***********设置 Group_ID*************/
   // By default, all devices start out in Group 1
   SampleApp_Group.ID = SAMPLEAPP_FLASH_GROUP; //0x0001
   osal_memcpy( SampleApp_Group.name, "Group 1", 7  );
   aps_AddGroup( SAMPLEAPP_ENDPOINT, &SampleApp_Group );
 
-  
-  
+
+
 #if defined ( LCD_SUPPORTED )
   HalLcdWriteString( "SampleApp", HAL_LCD_LINE_1 );
 #endif
@@ -358,16 +360,16 @@ uint16 SampleApp_ProcessEvent( uint8 task_id, uint16 events )
   //  (setup in SampleApp_Init()).
   if ( events & SAMPLEAPP_SEND_PERIODIC_MSG_EVT )  //周期性发送函数
   {
-    // Send the periodic message
-    //SampleApp_SendPeriodicMessage(); //用户发送处理函数
-    
+    /*Send the periodic message*/
+    SampleApp_SendPeriodicMessage(); //用户周期性广播发送函数
+
     /*Point_to_Point*/
     //SampleApp_SendPointToPointMessage(); //点对点发送函数
-    
+
     /*Group*/
     SampleApp_SendGroupMessage(); //组播通讯程序
-    
-    
+
+
     // Setup to send message again in normal period (+ a little jitter)
     osal_start_timerEx( SampleApp_TaskID, SAMPLEAPP_SEND_PERIODIC_MSG_EVT,
         (SAMPLEAPP_SEND_PERIODIC_MSG_TIMEOUT + (osal_rand() & 0x00FF)) );
@@ -381,7 +383,95 @@ uint16 SampleApp_ProcessEvent( uint8 task_id, uint16 events )
 }
 
 
-/*自定义点对点发送函数*/
+
+
+/*自行定义的 处理串口发来数据包 的函数*/
+void SampleApp_SerialCMD(mtOSALSerialData_t *cmdMsg)
+{
+    uint8 i,len,*str=NULL; //len 有用数据长度
+    str=cmdMsg->msg; //指向数据开头
+    len=*str; //msg 里的第 1 个字节代表后面的数据长度
+    /********打印出串口接收到的数据，用于提示*********/
+    HalUARTWrite(0,"我说: ",strlen("我说: "));
+    for(i=1;i<=len;i++)
+    {
+      HalUARTWrite(0,str+i,1);
+    }
+
+    HalUARTWrite(0,"\n",1 );//换行
+
+    //模拟异或操作
+//    int8 A[] = {'1','0','0','0','0','0','0','1'};
+//    unsigned char One = '1',Zero = '0';
+//    for (i=0;i<8;++i)
+//    {
+//      if(A[i]-*(str+i+1))
+//      {
+//        HalUARTWrite(0,&One,1);
+//        *(str+1+i) = One;
+//      }
+//      else
+//      {
+//        HalUARTWrite(0,&Zero,1);
+//        *(str+1+i) = Zero;
+//      }
+//
+//    }
+//
+
+
+
+//
+//    /*下面瞎写的*/
+//    if( *(str) == 4)
+//    {
+//      uint8 data[10]={'0','1','2','3','4','5','6','7','8','9'};
+//
+//      //HalUARTWrite(0,"get an 'a' !",strlen("get an 'a' !") );
+//      if ( AF_DataRequest( &SampleApp_Periodic_DstAddr, &SampleApp_epDesc,
+//                          SAMPLEAPP_COM_CLUSTERID,//自己定义一个
+//                          10, // 数据长度
+//                          data, //数据内容
+//                          &SampleApp_TransID,
+//                          AF_DISCV_ROUTE,
+//                          AF_DEFAULT_RADIUS ) == afStatus_SUCCESS )
+//      {
+//      }
+//
+//
+//      else
+//      {
+//        // Error occurred in request to send.
+//      }
+//    }
+//    /*上面瞎写的*/
+
+
+    /*******发送出去***参考网蜂 1 小时无线数据传输教程*********/
+    if ( AF_DataRequest( &SampleApp_Periodic_DstAddr, &SampleApp_epDesc,
+                        SAMPLEAPP_COM_CLUSTERID,//自己定义一个
+                        len+1, // 数据长度
+                        str, //数据内容
+                        &SampleApp_TransID,
+                        AF_DISCV_ROUTE,
+                        AF_DEFAULT_RADIUS ) == afStatus_SUCCESS )
+    {
+    }
+
+
+    else
+    {
+        // Error occurred in request to send.
+    }
+}
+
+
+
+
+
+/*********************************************************
+                   自定义点对点发送函数
+**********************************************************/
 void SampleApp_SendPointToPointMessage( void )
 {
   uint8 data[11]={'f','r','o','m',' ','r','o','u','t','e','1'};
@@ -405,95 +495,14 @@ void SampleApp_SendPointToPointMessage( void )
 
 
 
-/*自行定义的 处理串口发来数据包 的函数*/
-void SampleApp_SerialCMD(mtOSALSerialData_t *cmdMsg)
-{
-    uint8 i,len,*str=NULL; //len 有用数据长度
-    str=cmdMsg->msg; //指向数据开头
-    len=*str; //msg 里的第 1 个字节代表后面的数据长度
-    /********打印出串口接收到的数据，用于提示*********/
-    HalUARTWrite(0,"我说: ",strlen("我说: "));
-    for(i=1;i<=len;i++)
-    {
-      HalUARTWrite(0,str+i,1);
-    }
-        
-    HalUARTWrite(0,"\n",1 );//换行
-    
-    //模拟异或操作
-//    int8 A[] = {'1','0','0','0','0','0','0','1'};
-//    unsigned char One = '1',Zero = '0';
-//    for (i=0;i<8;++i)
-//    {
-//      if(A[i]-*(str+i+1))
-//      {
-//        HalUARTWrite(0,&One,1);
-//        *(str+1+i) = One;
-//      }
-//      else
-//      {
-//        HalUARTWrite(0,&Zero,1);
-//        *(str+1+i) = Zero;
-//      }
-//
-//    }
-//    
-    
-    
-    
-//    
-//    /*下面瞎写的*/
-//    if( *(str) == 4)
-//    {
-//      uint8 data[10]={'0','1','2','3','4','5','6','7','8','9'};
-//      
-//      //HalUARTWrite(0,"get an 'a' !",strlen("get an 'a' !") );
-//      if ( AF_DataRequest( &SampleApp_Periodic_DstAddr, &SampleApp_epDesc,
-//                          SAMPLEAPP_COM_CLUSTERID,//自己定义一个
-//                          10, // 数据长度
-//                          data, //数据内容
-//                          &SampleApp_TransID,
-//                          AF_DISCV_ROUTE,
-//                          AF_DEFAULT_RADIUS ) == afStatus_SUCCESS )
-//      {
-//      }
-//      
-//      
-//      else
-//      {
-//        // Error occurred in request to send.
-//      }
-//    }
-//    /*上面瞎写的*/
-    
-    
-    /*******发送出去***参考网蜂 1 小时无线数据传输教程*********/
-    if ( AF_DataRequest( &SampleApp_Periodic_DstAddr, &SampleApp_epDesc,
-                        SAMPLEAPP_COM_CLUSTERID,//自己定义一个
-                        len+1, // 数据长度
-                        str, //数据内容
-                        &SampleApp_TransID,
-                        AF_DISCV_ROUTE,
-                        AF_DEFAULT_RADIUS ) == afStatus_SUCCESS )
-    {
-    }
-    
-
-    else
-    {
-        // Error occurred in request to send.
-    }
-}
-
-
 
 
 /********************************************************
-                    组播发送函数
+                    组播 发送函数
 *********************************************************/
 void SampleApp_SendGroupMessage( void )
 {
-  uint8 data[10]={'g','r','o','u','p',' ','2',' ','r','1'};// 自定// 义数据
+  uint8 data[10]={'G','R','O','U','P',' ','2',' ','r','1'};// 自定// 义数据
   if ( AF_DataRequest( & SampleApp_Flash_DstAddr,
                       &SampleApp_epDesc,
                       SAMPLEAPP_FLASH_CLUSTERID,
@@ -511,6 +520,37 @@ void SampleApp_SendGroupMessage( void )
 }
 
 
+/*********************************************************************
+ * @fn      SampleApp_SendPeriodicMessage
+ *
+ * @brief   Send the periodic message.
+ *
+ * @param   none
+ *
+ * @return  none
+ *
+ *********************************************************
+                    周期性广播 发送函数
+ **********************************************************/
+void SampleApp_SendPeriodicMessage( void )
+{
+  uint8 data[10]={'f','r','o','m',' ','b','r','o',' ','4'};
+  if ( AF_DataRequest( &SampleApp_Periodic_DstAddr, &SampleApp_epDesc,
+                       SAMPLEAPP_PERIODIC_CLUSTERID,
+                       10,    //数据长度
+                       data,  //指针方式
+//                       1,  //数据长度
+//                       (uint8*)&SampleAppPeriodicCounter, //要发送的内容
+                       &SampleApp_TransID,
+                       AF_DISCV_ROUTE,
+                       AF_DEFAULT_RADIUS ) == afStatus_SUCCESS )
+  {
+  }
+  else
+  {
+    // Error occurred in request to send.
+  }
+}
 
 
 
@@ -535,78 +575,52 @@ void SampleApp_SendGroupMessage( void )
  */
 void SampleApp_MessageMSGCB( afIncomingMSGPacket_t *pkt )
 {
-  uint16 flashTime;
+  uint16 flashTime=1000;//一秒,1000ms
   uint8 i,len; //透传
   switch ( pkt->clusterId )
   {
-    
-    /*收到点对点消息*/
+
+    /*收到 点对点 消息*/
   case SAMPLEAPP_POINT_TO_POINT_CLUSTERID:
-    HalUARTWrite(0, "I got DATA ", 11);  //给串口发送提示
+    HalUARTWrite(0, "收到点对点消息: ", strlen("收到点对点消息: "));  //给串口发送提示
     HalUARTWrite(0, &pkt->cmd.Data[0], 11); // 打印收到数据
     HalUARTWrite(0, "\n", 1); // 回车换行
     break;
-    
-    /*收到周期性消息*/
+
+    /*收到 周期性 消息*/
   case SAMPLEAPP_PERIODIC_CLUSTERID:
-    //            HalUARTWrite(0, "I get data ", 11);  //给串口发送提示
-    //            HalUARTWrite(0, &pkt->cmd.Data[0], 10); // 打印收到数据
-    //            HalUARTWrite(0, "\n", 1); // 回车换行
+                HalUARTWrite(0, "周期性消息: ", strlen("周期性消息: "));  //给串口发送提示
+                HalUARTWrite(0, &pkt->cmd.Data[0], 10); // 打印收到数据
+                HalUARTWrite(0, "\n", 1); // 回车换行
+                HalLedBlink( HAL_LED_3, 3, 50, (flashTime / 4) ); //三号灯闪烁,三次,亮度50%,时间间隔0.25s
     break;
-    
+
 //    /*组播消息*/
 //  case SAMPLEAPP_FLASH_CLUSTERID:
 //    flashTime = BUILD_UINT16(pkt->cmd.Data[1], pkt->cmd.Data[2] );
 //    HalLedBlink( HAL_LED_4, 4, 50, (flashTime / 4) );
 //    break;
-    
-    /*收到对方串口透传消息*/
-  case SAMPLEAPP_COM_CLUSTERID: 
+
+    /*收到 对方串口透传 消息*/
+  case SAMPLEAPP_COM_CLUSTERID:
     HalUARTWrite(0,"对方说: ",strlen("对方说: "));
     len=pkt->cmd.Data[0];
     for(i=0;i<len;i++)
       HalUARTWrite(0,&pkt->cmd.Data[i+1],1);//发给 PC 机
     HalUARTWrite(0,"\n",1); // 回车换行
     break;
-    
-    /*收到组播消息*/
+
+    /*收到 组播 消息*/
   case SAMPLEAPP_FLASH_CLUSTERID:
-    HalUARTWrite(0,"I get data\n",11);// 用于提示有数据
+    HalUARTWrite(0,"组播消息:",strlen("组播消息:"));// 用于提示有数据
     HalUARTWrite(0, &pkt->cmd.Data[0],10); // 打印收到数据
     HalUARTWrite(0,"\n",1); //
-    //HalLedBlink( HAL_LED_2, 4, 50, (flashTime / 4) ); //四号灯闪烁
+    HalLedBlink( HAL_LED_2, 2, 50, (flashTime / 5) ); //二号灯闪烁,两次,亮度50%,时间间隔0.2s
     break;
   }
 }
 
-/*********************************************************************
- * @fn      SampleApp_SendPeriodicMessage
- *
- * @brief   Send the periodic message.
- *
- * @param   none
- *
- * @return  none
- */
-void SampleApp_SendPeriodicMessage( void )
-{
-  //uint8 data[10]={'0','1','2','3','4','5','6','7','8','9'};
-  if ( AF_DataRequest( &SampleApp_Periodic_DstAddr, &SampleApp_epDesc,
-                       SAMPLEAPP_PERIODIC_CLUSTERID,
-//                       10,    //数据长度
-//                       data,  //指针方式
-                       1,  //数据长度
-                       (uint8*)&SampleAppPeriodicCounter, //要发送的内容
-                       &SampleApp_TransID,
-                       AF_DISCV_ROUTE,
-                       AF_DEFAULT_RADIUS ) == afStatus_SUCCESS )
-  {
-  }
-  else
-  {
-    // Error occurred in request to send.
-  }
-}
+
 
 /*********************************************************************
  * @fn      SampleApp_SendFlashMessage
@@ -667,7 +681,7 @@ void SampleApp_HandleKeys( uint8 shift, uint8 keys )
      * This device will not receive the Flash Command from this
      * device (even if it belongs to group 1).
      */
-    SampleApp_SendFlashMessage( SAMPLEAPP_FLASH_DURATION );
+    //SampleApp_SendFlashMessage( SAMPLEAPP_FLASH_DURATION );
   }
 
   if ( keys & HAL_KEY_SW_2 )
