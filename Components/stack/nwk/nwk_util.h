@@ -22,8 +22,8 @@
   its documentation for any purpose.
 
   YOU FURTHER ACKNOWLEDGE AND AGREE THAT THE SOFTWARE AND DOCUMENTATION ARE
-  PROVIDED “AS IS” WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, 
-  INCLUDING WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, TITLE, 
+  PROVIDED “AS IS?WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED,
+  INCLUDING WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, TITLE,
   NON-INFRINGEMENT AND FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT SHALL
   TEXAS INSTRUMENTS OR ITS LICENSORS BE LIABLE OR OBLIGATED UNDER CONTRACT,
   NEGLIGENCE, STRICT LIABILITY, CONTRIBUTION, BREACH OF WARRANTY, OR OTHER
@@ -34,7 +34,7 @@
   (INCLUDING BUT NOT LIMITED TO ANY DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
 
   Should you have any questions regarding your right to use this Software,
-  contact Texas Instruments Incorporated at www.TI.com. 
+  contact Texas Instruments Incorporated at www.TI.com.
 **************************************************************************************************/
 
 #ifndef NWK_UTIL_H
@@ -125,7 +125,7 @@ extern "C" {
 #define DATA_FRAME_TYPE           0x00
 #define CMD_FRAME_TYPE            0x01
 #define STUB_NWK_FRAME_TYPE       0x03
-  
+
 #define NWK_FC_ROUTE_DISC_ENABLED 0x01
 
 // Network command fields
@@ -192,7 +192,7 @@ extern "C" {
 #define NWK_MC_MAXRADIUS_SHIFT              5
 #define NWK_MC_RESET_RADIUS_SHIFT           (NWK_MC_MAXRADIUS_SHIFT - NWK_MC_RADIUS_SHIFT)
 #define NWK_MC_INFINITE_RADIUS              7
-  
+
 // Report Types for Network Report Command Frame
 #define NWKREPORT_PANID_CONFLICT            0x00
 
@@ -386,10 +386,10 @@ extern void NLME_AddressConflictAssignNewStochastic( void );
 // Functions pointers for addressing schemes
 extern void (*pnwk_AssignNewAddr)( void );
 
-extern ZStatus_t NLME_SendNetworkReport( uint16 dstAddr, uint8 reportType, uint8 *EPID, 
+extern ZStatus_t NLME_SendNetworkReport( uint16 dstAddr, uint8 reportType, uint8 *EPID,
                                          uint8 reportInfoCnt, uint16 *panIDs );
 extern void NLME_ProcessNetworkReport( NLDE_FrameFormat_t *ff );
-extern ZStatus_t NLME_SendNetworkUpdate( uint16 dstAddr, uint8 updateType, uint8 *EPID, 
+extern ZStatus_t NLME_SendNetworkUpdate( uint16 dstAddr, uint8 updateType, uint8 *EPID,
                                          uint8 updateId, uint16 newPID );
 extern uint8 NLME_ProcessNetworkUpdate( uint8 handle, NLDE_FrameFormat_t *ff );
 extern void nwkAddPanId( uint16 panID );
@@ -427,7 +427,7 @@ extern uint8 nwkConvertLqiToCost( uint8 lqi );
                                        //   short address doesn't match
 #define NWKNEIGHBOR_FOUND       0xAA   // found matching extended and short
 
-// Neighbor table entry
+// Neighbor table entry ÁÚ¾Ó±í
 typedef struct
 {
   uint16  neighborAddress;

@@ -55,6 +55,7 @@
 #include "OSAL_Nv.h"
 #include "ZComDef.h"
 #include "ZMAC.h"
+#include <stdio.h>
 
 /*********************************************************************
  * LOCAL FUNCTIONS
@@ -135,6 +136,10 @@ int main( void )
 #ifdef WDT_IN_PM1
   /* If WDT is used, this is a good place to enable it. */
   WatchDogEnable( WDTIMX );
+  WDCTL = 0x00;   //这是必须的，打开 IDLE 才能设置看门狗
+  WDCTL |= 0x08;  // 时间间隔一秒，看门狗模式
+
+
 #endif
 
   osal_start_system(); // No Return from here

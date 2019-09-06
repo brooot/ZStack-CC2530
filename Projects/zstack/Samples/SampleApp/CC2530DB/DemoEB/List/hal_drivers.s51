@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                            /
-// IAR C/C++ Compiler V8.10.1.10194/W32 for 8051        17/Aug/2019  14:46:48 /
+// IAR C/C++ Compiler V8.10.1.10194/W32 for 8051        30/Aug/2019  09:51:32 /
 // Copyright 2004-2011 IAR Systems AB.                                        /
 //                                                                            /
 //    Core               =  plain                                             /
@@ -21,8 +21,8 @@
 //                          s\SampleApp\CC2530DB\..\..\..\Tools\CC2530DB\f8wC /
 //                          onfig.cfg (-DZIGBEEPRO -DSECURE=0                 /
 //                          -DZG_SECURE_DYNAMIC=0 -DREFLECTOR                 /
-//                          -DDEFAULT_CHANLIST=0x00000800                     /
-//                          -DZDAPP_CONFIG_PAN_ID=0xFFFF                      /
+//                          -DDEFAULT_CHANLIST=0x02000000                     /
+//                          -DZDAPP_CONFIG_PAN_ID=0xFFF0                      /
 //                          -DNWK_START_DELAY=100 -DEXTENDED_JOINING_RANDOM_M /
 //                          ASK=0x007F -DBEACON_REQUEST_DELAY=100             /
 //                          -DBEACON_REQ_DELAY_MASK=0x00FF                    /
@@ -406,7 +406,7 @@ Hal_ProcessPoll     SYMBOL "Hal_ProcessPoll"
 //   22   its documentation for any purpose.
 //   23 
 //   24   YOU FURTHER ACKNOWLEDGE AND AGREE THAT THE SOFTWARE AND DOCUMENTATION ARE
-//   25   PROVIDED “AS IS” WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED,
+//   25   PROVIDED “AS IS?WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED,
 //   26   INCLUDING WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, TITLE,
 //   27   NON-INFRINGEMENT AND FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT SHALL
 //   28   TEXAS INSTRUMENTS OR ITS LICENSORS BE LIABLE OR OBLIGATED UNDER CONTRACT,
@@ -866,7 +866,7 @@ Hal_ProcessEvent:
         SJMP    ??Hal_ProcessEvent_3
 //  220   }
 //  221 
-//  222   if (events & HAL_KEY_EVENT)
+//  222   if (events & HAL_KEY_EVENT) //°´¼üÊÂ¼þ
 ??Hal_ProcessEvent_5:
         MOV     A,R6
         MOV     C,0xE0 /* A   */.0
@@ -875,11 +875,11 @@ Hal_ProcessEvent:
 //  224 
 //  225 #if (defined HAL_KEY) && (HAL_KEY == TRUE)
 //  226     /* Check for keys */
-//  227     HalKeyPoll();
+//  227     HalKeyPoll();  //¼ì²â°´¼ü--ÖØµã
         ; Setup parameters for call to function HalKeyPoll
         LCALL   ??HalKeyPoll?relay
 //  228 
-//  229     /* if interrupt disabled, do next polling */
+//  229     /* if interrupt disabled, do next polling  Èç¹û²»ÊÇÖÐ¶Ï·½Ê½µÄ»°¾Í¶¨Ê±Æô¶¯´ËÊÂ¼þ¼ì²â°´¼ü*/
 //  230     if (!Hal_KeyIntEnable)
         MOV     DPTR,#Hal_KeyIntEnable
         MOVX    A,@DPTR

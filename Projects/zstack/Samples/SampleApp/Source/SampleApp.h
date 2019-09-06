@@ -74,8 +74,17 @@ extern "C"
 // Application Events (OSAL) - These are bit weighted definitions.
 #define SAMPLEAPP_SEND_PERIODIC_MSG_EVT       0x0001
 
-// Group ID for Flash Command
+
+
+
+
+
+/* Group ID for Flash Command  …Ë÷√◊ÈID∫≈ */
 #define SAMPLEAPP_FLASH_GROUP                  0x0002
+
+
+
+
 
 // Flash Command Duration - in milliseconds
 #define SAMPLEAPP_FLASH_DURATION               1000

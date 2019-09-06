@@ -1,6 +1,6 @@
 ###############################################################################
 #                                                                             #
-# IAR C/C++ Compiler V8.10.1.10194/W32 for 8051         17/Aug/2019  14:46:48 #
+# IAR C/C++ Compiler V8.10.1.10194/W32 for 8051         30/Aug/2019  09:51:32 #
 # Copyright 2004-2011 IAR Systems AB.                                         #
 #                                                                             #
 #    Core               =  plain                                              #
@@ -21,8 +21,8 @@
 #                          \SampleApp\CC2530DB\..\..\..\Tools\CC2530DB\f8wCon #
 #                          fig.cfg (-DZIGBEEPRO -DSECURE=0                    #
 #                          -DZG_SECURE_DYNAMIC=0 -DREFLECTOR                  #
-#                          -DDEFAULT_CHANLIST=0x00000800                      #
-#                          -DZDAPP_CONFIG_PAN_ID=0xFFFF                       #
+#                          -DDEFAULT_CHANLIST=0x02000000                      #
+#                          -DZDAPP_CONFIG_PAN_ID=0xFFF0                       #
 #                          -DNWK_START_DELAY=100 -DEXTENDED_JOINING_RANDOM_MA #
 #                          SK=0x007F -DBEACON_REQUEST_DELAY=100               #
 #                          -DBEACON_REQ_DELAY_MASK=0x00FF                     #
@@ -583,8 +583,8 @@ D:\ZStack-CC2530-2.5.1a\Components\hal\common\hal_assert.c
    \   0000D5   7F04         MOV     R7,#0x4
    \   0000D7   02....       LJMP    ?BANKED_LEAVE_XDATA
    \                     ??halAssertHazardLights_17:
-   \   0000DA   A281         MOV     C,0x80.1
-   \   0000DC   508C         JNC     ??halAssertHazardLights_7
+   \   0000DA   A280         MOV     C,0x80.0
+   \   0000DC   408C         JC      ??halAssertHazardLights_7
    \   0000DE   09           INC     R1
    \   0000DF   740A         MOV     A,#0xa
    \   0000E1   69           XRL     A,R1
@@ -596,8 +596,8 @@ D:\ZStack-CC2530-2.5.1a\Components\hal\common\hal_assert.c
    \   0000EC   7800         MOV     R0,#0x0
    \   0000EE   7900         MOV     R1,#0x0
    \                     ??halAssertHazardLights_18:
-   \   0000F0   A281         MOV     C,0x80.1
-   \   0000F2   5004         JNC     ??halAssertHazardLights_19
+   \   0000F0   A280         MOV     C,0x80.0
+   \   0000F2   4004         JC      ??halAssertHazardLights_19
    \   0000F4   7800         MOV     R0,#0x0
    \   0000F6   7900         MOV     R1,#0x0
    \                     ??halAssertHazardLights_19:
@@ -635,8 +635,8 @@ D:\ZStack-CC2530-2.5.1a\Components\hal\common\hal_assert.c
    \   000135   7B00         MOV     R3,#0x0
    \   000137   7A00         MOV     R2,#0x0
    \                     ??halAssertHazardLights_6:
-   \   000139   A281         MOV     C,0x80.1
-   \   00013B   50FC         JNC     ??halAssertHazardLights_6
+   \   000139   A280         MOV     C,0x80.0
+   \   00013B   40FC         JC      ??halAssertHazardLights_6
    \   00013D   D290         SETB    0x90.0
    \   00013F   D291         SETB    0x90.1
    \   000141   D294         SETB    0x90.4
@@ -650,8 +650,8 @@ D:\ZStack-CC2530-2.5.1a\Components\hal\common\hal_assert.c
    \   00014C   7800         MOV     R0,#0x0
    \   00014E   7900         MOV     R1,#0x0
    \                     ??halAssertHazardLights_22:
-   \   000150   A281         MOV     C,0x80.1
-   \   000152   5004         JNC     ??halAssertHazardLights_23
+   \   000150   A280         MOV     C,0x80.0
+   \   000152   4004         JC      ??halAssertHazardLights_23
    \   000154   7800         MOV     R0,#0x0
    \   000156   7900         MOV     R1,#0x0
    \                     ??halAssertHazardLights_23:

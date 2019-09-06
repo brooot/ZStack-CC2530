@@ -506,7 +506,7 @@
         </option>
         <option>
           <name>IccLang</name>
-          <state>0</state>
+          <state>2</state>
         </option>
         <option>
           <name>IccCDialect</name>
@@ -1336,6 +1336,7 @@
           <state>xMT_SYS_FUNC</state>
           <state>xMT_ZDO_FUNC</state>
           <state>xLCD_SUPPORTED=DEBUG</state>
+          <state>WDT_IN_PM1</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -2904,7 +2905,7 @@
         </option>
         <option>
           <name>XclFile</name>
-          <state>$PROJ_DIR$\..\..\..\Tools\CC2530DB\f8w2530.xcl</state>
+          <state>D:\ZStack-CC2530-2.5.1a\Projects\zstack\Tools\CC2530DB\f8w2530.xcl</state>
         </option>
         <option>
           <name>XclFileSlave</name>

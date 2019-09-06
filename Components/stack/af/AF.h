@@ -231,7 +231,7 @@ typedef enum
 {
   afAddrNotPresent = AddrNotPresent,
   afAddr16Bit      = Addr16Bit, //µã²¥
-  afAddr64Bit      = Addr64Bit, 
+  afAddr64Bit      = Addr64Bit,
   afAddrGroup      = AddrGroup, //×é²¥
   afAddrBroadcast  = AddrBroadcast //¹ã²¥
 } afAddrMode_t;

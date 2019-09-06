@@ -62,6 +62,16 @@
   #include "osal_task.h"
 #endif
 
+
+//用户声明
+#include <stdlib.h>
+#include "OSAL_Clock.h"
+#define random(x) (rand() % x)
+
+//函数声明
+void Delayms(unsigned int xms);
+
+
 /*********************************************************************
  * MACROS
  */
@@ -482,7 +492,7 @@ uint8 osal_msg_deallocate( uint8 *msg_ptr )
  *    refer to a valid task, since the task ID will be used
  *    for the response message.  This function will also set a message
  *    ready event in the destination tasks event list.
- * 
+ *
  *
  * @param   uint8 destination task - Send msg to?  Task ID
  * @param   uint8 *msg_ptr - pointer to new message buffer
@@ -1005,6 +1015,16 @@ uint8 osal_init_system( void )
   return ( SUCCESS );
 }
 
+
+
+
+
+void Delayms(unsigned int xms) //i=xms  即延时 i  毫秒
+{
+  unsigned int i,j;
+  for(i=xms;i>0;i--)
+    for(j=587;j>0;j--);
+}
 /*********************************************************************
  * @fn      osal_start_system
  *
@@ -1020,15 +1040,18 @@ uint8 osal_init_system( void )
 void osal_start_system( void )
 {
 #if !defined ( ZBIT ) && !defined ( UBIT )
-  
+
   for(;;)  // Forever Loop
-  
-    
-  
+
+
 #endif
   {
-    //HalUARTWrite(0, "Hello World\n", 12); // （串口 0 ，'字符’,字符个数）
+    srand((int)osal_getClock());
+    Delayms(50000);
     osal_run_system();
+    //feed the dog
+    WDCTL = 0xa0; //按寄存器描述来喂狗
+    WDCTL = 0x50;
   }
 }
 
