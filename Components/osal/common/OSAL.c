@@ -1047,7 +1047,7 @@ void osal_start_system( void )
 #endif
   {
     srand((int)osal_getClock());
-    Delayms(50000);
+    Delayms(random(400));
     osal_run_system();
     //feed the dog
     WDCTL = 0xa0; //°´¼Ä´æÆ÷ÃèÊöÀ´Î¹¹·
